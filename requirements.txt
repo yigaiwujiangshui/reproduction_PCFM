@@ -1,0 +1,16 @@
+# PCFM 复现依赖 —— 目标环境 conda: MLGener
+# 解释器: C:\Users\Jessewen_Wang\.conda\envs\MLGener\python.exe (python 3.13.12)
+# 基线: torch 2.10.0+cu130 / scipy 1.17.1 / numpy 2.4.2（勿降级）
+# 兼容性依据: PyPI requires_python —— neuraloperator>=3.9, gpytorch>=3.10,
+#             torchdiffeq~=3.6, tensorboard>=3.9，均与 python 3.13 兼容
+
+# 官方仓库 github.com/cpfpengfei/PCFM 所需
+neuraloperator==2.0.0
+gpytorch==1.15.2
+torchdiffeq==0.2.5
+tensorboard==2.21.0
+
+# neuraloperator 的传递依赖 + 训练脚本用到
+tensorly
+opt-einsum
+tqdm

@@ -1,0 +1,25 @@
+# ── 模型与运行产物（体积大，不入库）──
+out/
+*.pt
+*.pth
+*.ckpt
+logs/
+tmp*/
+*.log
+torchinductor_*/
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+
+# ── 系统 ──
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ── 编辑器 ──
+.vscode/
+.idea/
