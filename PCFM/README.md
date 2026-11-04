@@ -1,0 +1,42 @@
+# PCFM: Physics-Constrained Flow Matching
+
+[![arXiv](https://img.shields.io/badge/arXiv-2506.04171-b31b1b.svg)](https://arxiv.org/abs/2506.04171)
+&nbsp;•&nbsp;
+[Project Page](https://caipengfei.me/pcfm)
+&nbsp;•&nbsp;
+[Julia Version](https://github.com/utkarsh530/PCFM.jl)
+
+  
+[**Utkarsh\***](https://www.linkedin.com/in/utkarsh530/) •
+[**Pengfei Cai\***](https://www.linkedin.com/in/pengfei-cai/) •
+Alan Edelman •
+Rafael Gómez-Bombarelli •
+Christopher Rackauckas  
+
+ <a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/eacce1f7d11e2c3a7568468e0eff5d33-Abstract-Conference.html">NeurIPS 2025</a>
+</div>
+
+This repo implements *Physics-Constrained Flow Matching (PCFM)* -- a framework that enforces physical constraints during sampling of flow-based generative models. 
+
+<img src="assets/pcfm_figure.png" width="67%" alt="PCFM summary figure">
+
+
+## License
+
+PCFM is released under the **MIT License**.
+
+This repository includes components derived from [amazon-science/ECI-sampling](https://github.com/amazon-science/ECI-sampling) licensed under the **Apache License 2.0**. See [`LICENSE`](./LICENSE), [`LICENSE-APACHE-2.0`](./LICENSE-APACHE-2.0), and [`NOTICE`](./NOTICE) for details.
+
+
+
+## Citation
+
+If you use this repository, please cite:
+
+```bibtex
+@article{PCFM2025,
+  title={Physics-Constrained Flow Matching: Sampling Generative Models with Hard Constraints},
+  author={Utkarsh, Utkarsh and Cai, Pengfei and Edelman, Alan and Gomez-Bombarelli, Rafael and Rackauckas, Christopher Vincent},
+  journal={arXiv preprint arXiv:2506.04171},
+  year={2025}
+}
