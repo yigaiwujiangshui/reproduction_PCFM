@@ -3,14 +3,12 @@
 
 _DATASET_DICT = {}
 
-
 def register_dataset(name):
     def decorator(cls):
         _DATASET_DICT[name] = cls
         return cls
 
     return decorator
-
 
 def get_dataset(cfg):
     d_cfg = cfg.copy()

@@ -10,7 +10,6 @@ from torch.utils.data import Dataset
 
 from ._base import register_dataset
 
-
 @register_dataset('diffusion')
 class DiffusionDataset(Dataset):
     def __init__(self, split, nx=100, nt=100, visc_range=(1., 5.),

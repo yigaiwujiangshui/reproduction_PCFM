@@ -10,7 +10,6 @@ from neuralop.models import FNO as _FNO
 
 from ._base import register_model
 
-
 def get_time_embedding(timesteps, embedding_dim, max_positions=2000):
     # Code from Ho et al., 2020.
     assert len(timesteps.shape) == 1
@@ -24,7 +23,6 @@ def get_time_embedding(timesteps, embedding_dim, max_positions=2000):
         emb = F.pad(emb, (0, 1), mode='constant')
     assert emb.shape == (timesteps.shape[0], embedding_dim)
     return emb
-
 
 @register_model('fno')
 class FNO(nn.Module):

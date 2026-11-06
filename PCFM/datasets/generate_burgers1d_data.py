@@ -30,7 +30,6 @@ def solve_burgers(p_loc, u_bc, u_L=1.0, u_R=0.0, L=1.0, T=1.0, Nx=100, Nt=100, e
         u[n+1, -1] = u[n+1, -2]  
     return u.T
 
-
 def generate_sample(args):
     i_ic, i_bc, p_locs, u_bcs, Nx, Nt = args
     u = solve_burgers(p_locs[i_ic], u_bcs[i_bc], Nx=Nx, Nt=Nt)
@@ -59,7 +58,6 @@ def generate_burgers_dataset(path, N_ic, N_bc, Nx=100, Nt=100, T=1.0, nproc=48, 
                 f["u"][i_ic, i_bc] = sol.astype(np.float32)
 
     return full_path
-
 
 def generate_burgers_dataset_diffBCs(
     path, N_bc=20, N_ic=512, Nx=100, Nt=100, T=1.0, nproc=48, seed=42, filename="burgers_sampling_diffBCs"

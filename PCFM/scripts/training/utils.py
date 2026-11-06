@@ -8,12 +8,10 @@ from easydict import EasyDict
 import numpy as np
 import torch
 
-
 def load_config(config_path):
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     return EasyDict(config)
-
 
 def seed_all(seed):
     if seed is None:
@@ -24,7 +22,6 @@ def seed_all(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-
 def recursive_to_device(x, device):
     if isinstance(x, torch.Tensor):
         return x.to(device)
@@ -34,7 +31,6 @@ def recursive_to_device(x, device):
         return [recursive_to_device(v, device) for v in x]
     else:
         return x
-
 
 def get_optimizer(cfg, model):
     if cfg.type == 'adam':
@@ -53,7 +49,6 @@ def get_optimizer(cfg, model):
         )
     else:
         raise NotImplementedError(f'Optimizer not supported: {cfg.type}')
-
 
 def get_scheduler(cfg, optimizer):
     if cfg is None:
@@ -84,7 +79,6 @@ def get_scheduler(cfg, optimizer):
         )
     else:
         raise NotImplementedError(f'Scheduler not supported: {cfg.type}')
-
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters())

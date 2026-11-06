@@ -141,7 +141,6 @@ class Residuals:
         mass = self.mass_residual_burgers(u_flat)[1:]
         return torch.cat([bc, mass], dim=0)
 
-
 class Residuals2D:
     def __init__(self, data, x, y, t_grid, dx=None, dy=None, dt=None, nx=None, ny=None, nt=None, rho=None, nu=None):
         device = data.device

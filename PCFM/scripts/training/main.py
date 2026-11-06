@@ -62,7 +62,6 @@ if __name__ == '__main__':
         torch.cuda.empty_cache()
     global_step = 0
 
-
     def train():
         global global_step
 
@@ -115,7 +114,6 @@ if __name__ == '__main__':
             print(f'Epoch {epoch} train loss {epoch_loss:.6f}')
             epoch += 1
 
-
     def validate():
         with torch.no_grad():
             model.eval()
@@ -134,7 +132,6 @@ if __name__ == '__main__':
         print(f'Step {global_step} valid loss {val_loss:.6f}')
         return val_loss
 
-
     @torch.no_grad()
     def sample_uncond():
         model.eval()
@@ -142,7 +139,6 @@ if __name__ == '__main__':
         for i in range(config.n_sample):
             writer.add_image(f'sample/{i}', draw(gen[i], **config.vis), global_step)
         return gen
-
 
     try:
         if args.mode == 'train':

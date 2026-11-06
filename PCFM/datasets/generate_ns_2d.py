@@ -20,7 +20,6 @@ from tqdm import tqdm
 
 from datasets.random_fields import GaussianRF
 
-
 def solve_navier_stokes_2d(w0, f, visc=1e-3, T=49, delta_t=1e-3, record_steps=50):
     """Solve Navier-Stokes equations in 2D using Crank-Nicolson method.
 
@@ -163,7 +162,6 @@ def solve_navier_stokes_2d(w0, f, visc=1e-3, T=49, delta_t=1e-3, record_steps=50
 
     return sol.cpu().numpy()
 
-
 def get_random_force(b, s, device, cycles=1, scaling=0.1, t=0., t_scaling=0.2, seed=None):
     ft = torch.linspace(0, 1, s + 1).to(device)
     ft = ft[0:-1]
@@ -199,7 +197,6 @@ def get_random_force(b, s, device, cycles=1, scaling=0.1, t=0., t_scaling=0.2, s
     f = f * scaling
 
     return f
-
 
 @torch.no_grad()
 def navier_stokes(
@@ -258,7 +255,6 @@ def navier_stokes(
     sols = np.concatenate(sols, axis=0).reshape(nw, nf, s, s, steps)
     data_f['u'][:] = sols
     print(f'Done. Dataset saved to {path}')
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

@@ -13,7 +13,6 @@ def compute_jacobian(fn: Callable[[torch.Tensor], torch.Tensor], inputs: torch.T
     n = inputs.numel()
     return J.reshape(m, n)
 
-
 def fast_project_batched(xi_batch: torch.Tensor, h_func: Callable[[torch.Tensor], torch.Tensor], max_iter: int = 1) -> torch.Tensor:
     """
     Final projection step in PCFM
@@ -76,7 +75,6 @@ def fast_project_batched_chunk(xi_batch, h_func, max_iter=1, chunk_size=16):
         torch.cuda.empty_cache()
     return torch.cat(results, dim=0)
 
-
 def make_grid(dims: tuple[int], device='cpu', start: float | tuple[float] = 0., end: float | tuple[float] = 1.):
     ndim = len(dims)
     if not isinstance(start, (tuple, list)):
@@ -91,7 +89,6 @@ def make_grid(dims: tuple[int], device='cpu', start: float | tuple[float] = 0., 
     ], indexing='ij')
     grid = torch.stack(xs, dim=-1).view(-1, ndim)
     return grid
-
 
 def relaxed_penalty_constraint_interp_linear_detached(
     u0, u1_proj, v_flat, t, dt, hfunc, lam=1e-2, step_size=1e-2, num_steps=10, safe_clamp=1e-3
@@ -127,7 +124,6 @@ def relaxed_penalty_constraint_interp_linear_detached(
         u = (u - step_size * grad).detach().clone().requires_grad_(True)
 
     return u.detach()
-
 
 # 
 def pcfm_sample(
@@ -185,7 +181,6 @@ def pcfm_sample(
     proj_vf = ((ut_interp - u_flat) / dt).detach()
     return proj_vf
 
-
 def pcfm_batched(ut, vf, t, u0, dt, hfunc, use_vmap=False, mode='root', newtonsteps=1, guided_interpolation=False, interpolation_params={}, eps=1e-6):
     """
     Batched PCFM projection for 1D problems (nx, nt)
@@ -216,7 +211,6 @@ def pcfm_batched(ut, vf, t, u0, dt, hfunc, use_vmap=False, mode='root', newtonst
         v_proj_flat = torch.stack(v_proj_list, dim=0)
 
     return v_proj_flat.view(B, nx, nt)
-
 
 def pcfm_2d_batched(ut, vf, t, u0, dt, hfunc, mode='root', newtonsteps=1, guided_interpolation = True, interpolation_params={}, eps=1e-6):
     """

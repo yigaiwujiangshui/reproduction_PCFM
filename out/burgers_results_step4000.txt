@@ -1,0 +1,61 @@
+==============================================================================
+PCFM · Burgers 1D 复现结果（IC 约束 / BC 约束）
+==============================================================================
+脚本        : burgers_run.py（C:\Resource\Code\DSH\paperResearch\work\repro\burgers_run.py）
+生成时间    : 2026-11-05 03:11:03
+checkpoint  : C:\Resource\Code\DSH\paperResearch\work\repro\out\burgers_4000.pt  (训练步数 4000)
+环境        : [env] python 3.13.12 | torch 2.10.0+cu130 | cuda True | GPU NVIDIA GeForce RTX 5060 Ti 15.9 GiB
+
+[训练设定]（configs/burgers1d.yml，仅 batch 按显存调整）
+  max_iter 20000 | batch 64 | lr 3.0e-04 | plateau factor 0.5 patience 10 min_lr 1.0e-04 | max_grad_norm 100.0
+  FNO n_modes [32, 32] hidden 64 proj 256 n_layers 4 emb 32 | GP 先验 Matérn-1/2 length 0.001 var 1.0
+  训练集 burgers_train_nIC80_nBC80.h5 | 测试集 burgers_test_nIC30_nBC30.h5 | num_workers 0
+
+[评测设定] n_sample 8 | n_step 20 | seed 0 | vanilla 与 PCFM 共用同一批初始噪声（配对比较）
+  指标单位 1e-2（与论文 Table 3 一致）；CE 为残差 L2 范数（未除以点数）
+  MMSE = mean((E[gen]-E[ref])^2) | SMSE = mean((std[gen]-std[ref])^2)
+
+------------------------------------------------------------------------------
+IC 情形：固定 test IC #0 (p_loc = 0.5293)，参考族 = 该 IC 下所有 BC 的真解（30 条）
+
+  config                       MMSE     SMSE      CE(IC)      CE(CL)
+  vanilla n_step=20           4.526    7.735   2.660e+02   3.707e+01
+  PCFM n_step=20              4.157    6.681   1.067e-06   5.441e-03
+  (参考真解自身)                                     5.196e+00            
+  ↑ 最后一行是真解自身的残差 = 该离散格式的 CE 下限（不是 0）
+
+  论文 Table 3（IC 情形）: PCFM 7.42 / 24.33 / CE(IC) 0   |   vanilla 41.37 / 27.44 / CE(IC) 4.58e+03
+
+------------------------------------------------------------------------------
+BC 情形：固定 test BC #0 (u_bc = 0.2646)，参考族 = 该 BC 下所有 IC 的真解（30 条）
+
+  config                       MMSE     SMSE      CE(BC)      CE(CL)
+  vanilla n_step=20           2.212    0.884   2.081e+02   7.293e+00
+  PCFM n_step=20              1.588    0.584   5.826e-09   5.613e-05
+  (参考真解自身)                                     5.196e+00            
+  ↑ 最后一行是真解自身的残差 = 该离散格式的 CE 下限（不是 0）
+
+  论文 Table 3（BC 情形）: PCFM 3.16 / 6.32 / CE(BC) 0   |   vanilla 18.66 / 27.70 / CE(BC) 1.25e+01
+
+==============================================================================
+[判读]
+
+IC 情形：
+  1) 约束满足：vanilla CE(IC) = 2.66e+02（单位 1e-2），PCFM = 1.07e-06（原始 L2 = 1.1e-08）→ 下降 2.49e+08 倍；相对真解自身残差 5.20（1e-2 单位） 还低 4.9e+06 倍
+  2) CL（连续律）残差：vanilla 3.71e+01 vs PCFM 5.44e-03
+  3) 保真度：MMSE 4.526 → 4.157（改善 1.09×）；SMSE 7.735 → 6.681（改善 1.16×）
+  4) 与论文量级对照：PCFM MMSE 论文 7.42 / 实测 4.157；SMSE 论文 24.33 / 实测 6.681
+
+BC 情形：
+  1) 约束满足：vanilla CE(BC) = 2.08e+02（单位 1e-2），PCFM = 5.83e-09（原始 L2 = 5.8e-11）→ 下降 3.57e+10 倍；相对真解自身残差 5.20（1e-2 单位） 还低 8.9e+08 倍
+  2) CL（连续律）残差：vanilla 7.29e+00 vs PCFM 5.61e-05
+  3) 保真度：MMSE 2.212 → 1.588（改善 1.39×）；SMSE 0.884 → 0.584（改善 1.51×）
+  4) 与论文量级对照：PCFM MMSE 论文 3.16 / 实测 1.588；SMSE 论文 6.32 / 实测 0.584
+
+[与论文设定不一致处]
+  * batch_size 256 → 64：16 GiB 显存约束（论文 batch 256，batch 64 峰值约 6.5 GiB）。GP 先验采样是主要开销，batch 几乎不改变单步耗时。
+  * num_workers 16 → 0：DSH 沙箱禁止多进程（mp.Pool / DataLoader worker 会 WinError 5）。
+  * 验证批次 valid_max_batch 32 → 8：仅用于 plateau 调度的验证损失，不影响主目标；降低以缩短总时长。
+  * PCFM 采用 guided_interpolation=False（硬投影、无松弛罚项），对应论文 Table 3 的主结果而非 L.3 的罚项消融。
+  * ⚠ 本表对应的 checkpoint 只训练了 4000 步（目标 20000 步），数值尚未收敛到论文量级；训练仍在后台进行。
+

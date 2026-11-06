@@ -109,7 +109,6 @@ def run_parallel(root, N_ic=80, N_bc=80, nproc=48, seed=42, filename="RD_neumann
                 f['u'][i_ic, i_bc] = sol.astype(np.float32)
     return path
 
-
 # training data: vary IC and BC 
 run_parallel(root='datasets/data/', N_ic=80, N_bc=80, nproc=48, seed=42, filename="RD_neumann_train")
 run_parallel(root='datasets/data/', N_ic=30, N_bc=30, nproc=48, seed=0, filename="RD_neumann_test")

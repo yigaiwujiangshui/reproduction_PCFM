@@ -1,0 +1,41 @@
+==============================================================================
+Burgers 1D 冒烟测试：训练 20 步 → IC / BC 各采一次样
+==============================================================================
+[env] python 3.13.12 | torch 2.10.0+cu130 | cuda True | GPU NVIDIA GeForce RTX 5060 Ti 15.9 GiB
+[cfg] C:\Resource\Code\DSH\paperResearch\work\repro\PCFM\configs\burgers1d.yml
+[smoke] steps 20 | batch 8 | n_sample 2 | n_step 3 | n_sample≥2 才能算 std
+
+[1/3] 训练
+[data] train 6400 条 | test 900 条 | batch 8 | num_workers 0 | drop_last True
+[model] 8.99M params | FNO n_modes [32, 32] hidden 64 proj 256 n_layers 4
+[opt] Adam lr 3.0e-04 betas (0.9,0.999) wd 0.0 | plateau factor 0.5 patience 10 min_lr 1.0e-04
+  step      1/20  loss 0.459446  |g|     1.52  lr 3.00e-04       3s
+  [val ] step     20  val_loss 0.219082  lr -> 3.00e-04      24s
+[saved] C:\Resource\Code\DSH\paperResearch\work\repro\out\_smoke_20.pt
+[train] 完成 20 步，用时 0.4 min (1.190 s/step)
+  训练 20 步完成，28.1s
+
+[2/3] 评测（IC + BC 各一次采样）
+  [data] burgers_test_nIC30_nBC30.h5 | u (30, 30, 101, 101)
+  [noise] (2, 101, 101)
+
+[IC] 参考族 (30, 101, 101) | 约束 IC | 残差维数 696
+  [check] 参考解自身残差 L2 = 5.196e-02（离散格式的误差下限，非 0）
+  (a) vanilla FFM  n_step=3
+  vanilla n_step=3       MMSE    19.283  SMSE     1.245  CE(IC) 5.209e+02  CE(CL) 2.518e+02
+  (b) PCFM（硬投影，无罚项）  n_step=3
+  PCFM n_step=3          MMSE    17.237  SMSE     1.193  CE(IC) 1.547e-05  CE(CL) 9.861e-01
+
+[BC] 参考族 (30, 101, 101) | 约束 BC | 残差维数 300
+  [check] 参考解自身残差 L2 = 5.196e-02（离散格式的误差下限，非 0）
+  (a) vanilla FFM  n_step=3
+  vanilla n_step=3       MMSE    11.008  SMSE     5.759  CE(BC) 1.598e+02  CE(CL) 1.692e+01
+  (b) PCFM（硬投影，无罚项）  n_step=3
+  PCFM n_step=3          MMSE    10.926  SMSE     5.762  CE(BC) 3.156e-06  CE(CL) 4.884e-05
+
+[3/3] 汇总
+  总耗时 31.2s
+  峰值显存 1.46 GiB
+  冒烟判定：训练前向/反向、约束构造、PCFM 投影、两个情形采样全部跑通 → PASS
+
+[小结] 冒烟仅验证链路可用，数值无意义（20 步训练 / n_step=3 采样）

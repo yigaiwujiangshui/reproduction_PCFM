@@ -10,7 +10,6 @@ import math
 
 import torch
 
-
 class GaussianRF:
     def __init__(self, n_dims, size, alpha=2, tau=3, sigma=None, device=None):
 

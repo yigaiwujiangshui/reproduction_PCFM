@@ -19,7 +19,6 @@ class hierarchy for PDE constraints
 
 from abc import ABC, abstractmethod
 
-
 def expand_dims(t, ndim):
     """
     Expand dimensions of a tensor.
@@ -28,7 +27,6 @@ def expand_dims(t, ndim):
     :return: expanded tensor, size (B, ...)
     """
     return t.view(-1, *([1] * (ndim - 1)))
-
 
 #################################################
 # Base Class for Constraints                    #
@@ -63,7 +61,6 @@ class Constraint(ABC):
         """
         pass
 
-
 #################################################
 # General Constraints                           #
 #################################################
@@ -87,7 +84,6 @@ class ChainConstraint(Constraint):
             x1 = cond.adjust(x1)
         return x1
 
-
 class NoneConstraint(Constraint):
     """
     Dummy constraint.
@@ -95,7 +91,6 @@ class NoneConstraint(Constraint):
 
     def adjust(self, x1):
         return x1
-
 
 #################################################
 # Dirichlet Boundary Conditions                 #
@@ -111,7 +106,6 @@ class DirichletCondition(Constraint):
         value = self.value.expand_as(x1)
         x1[mask] = value[mask]
         return x1
-
 
 class DirichletXtCondition(Constraint):
     """
@@ -132,7 +126,6 @@ class DirichletXtCondition(Constraint):
         x1[self.slice] = self.value.expand_as(x1[self.slice])
         return x1
 
-
 class DirichletX0Condition(DirichletXtCondition):
     """
     Dirichlet boundary condition at t=0 (first frame). Specify u(x, 0) = value.
@@ -142,7 +135,6 @@ class DirichletX0Condition(DirichletXtCondition):
 
     def __init__(self, value, tdim=-1):
         super().__init__(value, 0, tdim)
-
 
 class DirichletXnCondition(DirichletXtCondition):
     """
@@ -154,20 +146,16 @@ class DirichletXnCondition(DirichletXtCondition):
     def __init__(self, value, tdim=-1):
         super().__init__(value, -1, tdim)
 
-
 class InitialCondition(DirichletX0Condition):
     pass
-
 
 class BoundaryCondition(DirichletX0Condition):
     def __init__(self, value, tdim=-2):
         super().__init__(value, tdim)
 
-
 #################################################
 # Periodic Boundary Conditions (PBC)            #
 #################################################
-
 
 class PeriodicCondition(Constraint):
     """
@@ -189,7 +177,6 @@ class PeriodicCondition(Constraint):
             x1[slice_start] = value
             x1[slice_end] = value
         return x1
-
 
 #################################################
 # Conservation Laws                             #

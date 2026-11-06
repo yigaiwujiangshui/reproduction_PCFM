@@ -10,7 +10,6 @@ from torch.utils.data import Dataset
 
 from ._base import register_dataset
 
-
 @register_dataset('ns')
 class NavierStokesDataset(Dataset):
     def __init__(self, root, split, data_file):

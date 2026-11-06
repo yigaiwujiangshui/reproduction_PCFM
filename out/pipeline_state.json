@@ -1,0 +1,30 @@
+{
+  "ood": {
+    "status": "ok",
+    "started": "2026-11-05T02:19:48",
+    "code": 0,
+    "finished": "2026-11-05T02:20:07",
+    "elapsed_min": 0.3
+  },
+  "burgers_train": {
+    "status": "ok",
+    "started": "2026-11-05T02:34:01",
+    "code": 0,
+    "finished": "2026-11-05T05:29:05",
+    "elapsed_min": 175.1
+  },
+  "burgers_eval": {
+    "status": "ok",
+    "started": "2026-11-05T05:29:05",
+    "code": 0,
+    "finished": "2026-11-05T05:29:24",
+    "elapsed_min": 0.3
+  },
+  "heat_topup": {
+    "status": "ok",
+    "started": "2026-11-05T05:29:24",
+    "code": 0,
+    "finished": "2026-11-05T11:43:07",
+    "elapsed_min": 373.7
+  }
+}

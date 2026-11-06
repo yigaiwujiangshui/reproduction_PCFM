@@ -10,7 +10,6 @@ from matplotlib import pyplot as plt
 
 plt.switch_backend('agg')
 
-
 def plt2tensor(fig):
     buf = io.BytesIO()
     fig.savefig(buf, format='jpg')
@@ -20,14 +19,12 @@ def plt2tensor(fig):
     plt.close()
     return image
 
-
 def draw_2d(x, vmin=0, vmax=1, cmap='bwr'):
     # x: (nx, nt)
     plt.figure(figsize=(4, 4))
     plt.imshow(x.detach().cpu().numpy(), cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
     plt.axis('off')
     return plt2tensor(plt.gcf())
-
 
 def draw_3d(x, downsample=2, nrow=5, vmin=-2.5, vmax=2.5, cmap='bwr'):
     # x: (nx, ny, nt)
@@ -41,7 +38,6 @@ def draw_3d(x, downsample=2, nrow=5, vmin=-2.5, vmax=2.5, cmap='bwr'):
         ax.imshow(im, cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
         ax.axis('off')
     return plt2tensor(plt.gcf())
-
 
 def draw(x, **kwargs):
     if x.dim() == 2:

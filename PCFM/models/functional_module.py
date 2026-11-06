@@ -10,7 +10,6 @@ from . import get_flow_model
 from scripts.training.utils import get_optimizer, get_scheduler
 from scripts.training.vis_utils import draw
 
-
 class FunctionalModule(pl.LightningModule):
     def __init__(self, **config):
         super().__init__()

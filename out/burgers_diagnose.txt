@@ -1,0 +1,29 @@
+Burgers 差距诊断：评测口径 vs 训练程度
+============================================================================================
+checkpoint: burgers_4000.pt
+
+[参考族自身统计] MMSE 的分母就是这个量
+情形         来源              条数   mean 场 RMS    std 场 RMS
+------------------------------------------------------------
+IC         test            30       0.6973       0.1105
+IC         sampling       512       0.6372       0.1314
+BC         test            30       0.6064       0.2819
+BC         test            20       0.7280       0.1351
+
+[受控对照] 只改一个变量
+#   情形   参考族        n_step config         MMSE     SMSE          CE
+------------------------------------------------------------------------------
+-   IC   test30         20 vanilla n_   4.5263   7.7352         nan
+-   IC   test30         20 PCFM n_ste   4.1567   6.6808         nan
+-   IC   samp512        20 vanilla n_   4.0425   7.9919         nan
+-   IC   samp512        20 PCFM n_ste   3.4457   6.5697         nan
+-   IC   samp512         5 vanilla n_   3.5635   5.3778         nan
+-   IC   samp512         5 PCFM n_ste   2.7373   5.0210         nan
+-   BC   test30         20 vanilla n_   2.2121   0.8842         nan
+-   BC   test30         20 PCFM n_ste   1.5881   0.5838         nan
+-   BC   samp512        20 vanilla n_   6.3211   8.0426         nan
+-   BC   samp512        20 PCFM n_ste   6.3272   9.3153         nan
+
+论文 Table 3（同口径，单位 1e-2）：
+  IC: PCFM 7.42 / 24.33 / CE 0   |  vanilla 41.37 / 27.44 / 4.58e+03
+  BC: PCFM 3.16 / 6.32  / CE 0   |  vanilla 18.66 / 27.70 / 1.25e+01

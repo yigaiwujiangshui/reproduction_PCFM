@@ -6,7 +6,6 @@ from tqdm import tqdm
 from torchdiffeq import odeint
 from .pcfm_sampling import fast_project_batched, make_grid, pcfm_batched, pcfm_2d_batched
 
-
 class FFM_sampler:
     """
     Collection of samplers using a pretrained functional flow matching model 
@@ -76,7 +75,6 @@ class FFM_sampler:
                     u = u1 * (t + dt) + u0 * (1 - t - dt)
         return u.detach()
 
-
     def guided_sample(self, u0, u1_true, mask, n_step, loss_fn, eta=2e2):
         """
         DiffusionPDE: takes an IC and PINN loss (if known) on the extrapolated sample and updates the vector field 
@@ -140,7 +138,6 @@ class FFM_sampler:
         with torch.no_grad():
             u_final = euler_ffm(noise)
         return u_final.detach()
-
 
 class FFM_NS_sampler:
     """

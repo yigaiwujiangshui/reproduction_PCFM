@@ -9,7 +9,6 @@ import gpytorch
 from torchdiffeq import odeint
 from tqdm import tqdm
 
-
 class GPPrior(gpytorch.models.ExactGP):
     """ Wrapper around some gpytorch utilities that makes prior sampling easy.
     """
@@ -94,7 +93,6 @@ class GPPrior(gpytorch.models.ExactGP):
         samples = samples.reshape(n_samples, *dims)
         return samples
 
-
 def make_grid(dims: tuple[int], device='cpu', start: float | tuple[float] = 0., end: float | tuple[float] = 1.):
     ndim = len(dims)
     if not isinstance(start, (tuple, list)):
@@ -109,7 +107,6 @@ def make_grid(dims: tuple[int], device='cpu', start: float | tuple[float] = 0., 
     ], indexing='ij')
     grid = torch.stack(xs, dim=-1).view(-1, ndim)
     return grid
-
 
 class FFM(nn.Module):
     """

@@ -1,0 +1,79 @@
+============================================================================================================
+PCFM 复现 · Heat 五方法对照（vanilla / PCFM / ECI / DiffusionPDE-guided / D-Flow）
+============================================================================================================
+checkpoint : C:\Resource\Code\DSH\paperResearch\work\repro\out\heat_30000.pt
+环境       : torch 2.10.0+cu130 / device cuda / grid 100x100
+协议       : φ = π/4 (0.7853981633974483)，参考解族 n_ref=32 (ν∈[1,5])
+配对       : 共用 GP 噪声 seed=2026，n_sample=8，n_step=20
+时间       : 2026-11-05 02:31:14
+
+指标口径：run_heat_official.metrics()，均已 ×1e2，与论文 Table 3 的「1e-2 单位」同量纲。
+  MMSE = ||E[gen]-E[ref]||²   SMSE = ||Std[gen]-Std[ref]||²
+  CE_IC = IC 残差 L2           CE_CL = 守恒律（质量）残差 L2
+
+------------------------------------------------------------------------------------------------------------
+method                      MMSE      SMSE      CE_IC      CE_CL    time   关键超参
+------------------------------------------------------------------------------------------------------------
+vanilla FFM                2.856     1.735   4.34e+02   4.68e+00    0.7s   n_step=20（Euler，无任何投影）
+PCFM                       0.186     0.008   0.00e+00   3.87e-05    4.6s   n_step=20, newtonsteps=1, guided_interpolation=False（每步投影 + 末端投影）
+ECI                        0.168     1.220   4.66e-08   1.54e-04    3.4s   n_step=20, n_mix=10, resample_step=None(→201，不重采样), constraint=Chain(RegionConservationLaw, InitialCondition)
+DiffusionPDE guided        2.147     2.320   4.44e+02   4.49e+00    0.8s   n_step=20, eta=2e2, loss=masked-MSE, u1_true=family.mean, mask=ones  ← 近似
+D-Flow                     0.251     0.389   1.59e+01   5.16e+00  323.9s   n_step=20, n_iter=20, lr=1e-1 (LBFGS), loss=masked-MSE, u1_true=family.mean, mask=ones  ← 近似
+------------------------------------------------------------------------------------------------------------
+
+论文 Table 3（Heat 行，单位 1e-2）参考值：
+  PCFM MMSE 0.241, ECI 0.697, D-Flow 1.97, vanilla FFM 4.56
+  CE(IC)：PCFM 0, ECI 0, D-Flow 102, FFM 579
+
+============================================================================================================
+[判读]
+============================================================================================================
+1) CE(IC)：硬投影是否为 0
+     PCFM                   CE_IC = 0.000e+00   = 0（精确 0）
+     ECI                    CE_IC = 4.657e-08   ≈ 0（机器精度级，论文口径下即 0）
+     DiffusionPDE guided    CE_IC = 4.441e+02   ≠ 0（未硬约束）
+     D-Flow                 CE_IC = 1.586e+01   ≠ 0（未硬约束）
+     vanilla FFM            CE_IC = 4.340e+02   ≠ 0（未硬约束）
+     → PCFM 的 CE(IC) = 0（硬投影在每步与末端都精确满足 IC）；ECI 的 CE(IC) = 0（ChainConstraint 末步是 InitialCondition）。
+     → 其余方法 CE(IC) 全部非零：DiffusionPDE guided, D-Flow, vanilla FFM。
+     → 与论文 Table 3「PCFM 0 / ECI 0 / D-Flow 102 / FFM 579」的定性格局一致。
+
+2) MMSE 量级对照（ours = 本次 ×1e2 口径；paper = Table 3）
+     method                      ours     paper     ratio   |log10 ratio|
+     PCFM                       0.186     0.241     0.772           0.113
+     ECI                        0.168     0.697     0.240           0.619
+     D-Flow                     0.251     1.970     0.127           0.895
+     vanilla FFM                2.856     4.560     0.626           0.203
+     DiffusionPDE guided        2.147         -         -               -   （Table 3 未收录该基线）
+
+3) 谁最接近论文量级（按 |log10(ours/paper)| 排序）
+     1. PCFM                   |log10| = 0.113，ratio = 0.772（同量级）
+     2. vanilla FFM            |log10| = 0.203，ratio = 0.626（同量级）
+     3. ECI                    |log10| = 0.619，ratio = 0.240（偏离近一个量级）
+     4. D-Flow                 |log10| = 0.895，ratio = 0.127（偏离近一个量级）
+     → 最接近论文量级的是 **PCFM**（|log10|=0.113）
+
+4) 本次实验的 MMSE 排序（越小越好）
+     1. ECI                    MMSE    0.168   CE_IC 4.66e-08
+     2. PCFM                   MMSE    0.186   CE_IC 0.00e+00
+     3. D-Flow                 MMSE    0.251   CE_IC 1.59e+01
+     4. DiffusionPDE guided    MMSE    2.147   CE_IC 4.44e+02
+     5. vanilla FFM            MMSE    2.856   CE_IC 4.34e+02
+
+5) 必须说明的偏差来源
+   a. u1_true / mask 是我方推测：guided 与 D-Flow 都用真解族均值场 + 全 1 掩码，
+      相当于把目标场完全告诉基线（对基线有利），论文原始 setting 未公开。
+   b. ECI 的 n_mix=10 / resample_step=None 是回落值：官方推理脚本未公开，
+      configs 与 scripts/training/main.py 里都没有这两个超参。
+   c. ECI 约束 = Chain(RegionConservationLaw, InitialCondition)；官方
+      models/constraints.py 没有专门的 Heat/Mass 类，这是按类层次做的等价组合。
+   d. 基线 loss 用 mean 归一（官方 D-Flow 默认是 masked-sum），与 eta=2e2 匹配。
+   e. 训练步数 30000（论文 20000+ 量级）、n_sample=8、单一 φ，统计噪声不可忽略。
+
+6) 与论文 Table 3 数值的逐方法差异
+   PCFM           ours  0.186 / paper  0.241 （0.77×）  同量级：PCFM 在 n_step=20 下已收敛，SMSE 也小，说明分布宽度同样准确。
+   ECI            ours  0.168 / paper  0.697 （0.24×）  明显好于论文；但它的 SMSE 偏大，说明只对上了均值、没对上分布宽度。推测原因：n_mix=10 相当于 n_step*n_mix 次模型评估（是 PCFM 的 10 倍），且约束是精确的 IC + 质量守恒。论文 ECI 的超参未知，不能直接对标。
+   D-Flow         ours  0.251 / paper  1.970 （0.13×）  明显好于论文；主因是我们把 family.mean(0) 当作 u1_true，等于直接监督了 MMSE 的目标量（对基线极有利），这组数字不能与论文直接比。
+   vanilla FFM    ours  2.856 / paper  4.560 （0.63×）  同量级；n_sample=8 时 MMSE 的批均值方差很大（同一 PCFM 配置 seed=0/16 样本时 vanilla 是 8.78），所以 2.86 与 4.56 的差别更多是抽样噪声而非模型差异。
+
+============================================================================================================
